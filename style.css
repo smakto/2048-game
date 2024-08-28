@@ -1,0 +1,92 @@
+body {
+  background-color: #eadfb4;
+  width: 35%;
+  margin: 0 auto;
+  padding: 5px;
+  font-family: "Inter", sans-serif;
+}
+
+header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 25px auto;
+}
+header div.headRight {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+}
+header div.headRight div.scoreBoard {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+header div.headRight div.scoreBoard div#currentScore {
+  margin-right: 5px;
+}
+header div.headRight div.scoreBoard div {
+  width: 100px;
+  height: 50px;
+  background-color: #b3a398;
+  border: none;
+  border-radius: 5px;
+}
+header div.headRight div.scoreBoard div h4 {
+  margin: 0px;
+  font-size: larger;
+  color: white;
+}
+header div.headRight div.scoreBoard div p {
+  color: white;
+  margin: 5px 0px;
+}
+header h1 {
+  font-size: 54px;
+  margin: 5px;
+  color: gray;
+}
+header p {
+  font-size: 14px;
+  color: gray;
+}
+
+main {
+  display: flex;
+  justify-content: center;
+}
+main div#mainGameField {
+  margin-top: 15px;
+  background-color: #b3a398;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  border-radius: 3px;
+  width: 410px;
+  padding: 5px 0px;
+}
+main div#mainGameField div.tileClass {
+  width: 90px;
+  height: 90px;
+  margin: 5px;
+  border-radius: 3px;
+  background-color: #eadfb4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+button {
+  background-color: gray;
+  border: none;
+  border-radius: 5px;
+  height: 50px;
+  color: white;
+}
+
+button:hover {
+  box-shadow: 2px 1px 3px 1px;
+  color: #b3a398;
+}/*# sourceMappingURL=style.css.map */
