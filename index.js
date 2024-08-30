@@ -1,5 +1,6 @@
 let mainGameDiv = document.getElementById("mainGameField");
 let tiles = document.querySelectorAll("div.tileClass");
+let bestScore;
 
 /////////////// Game Create
 
@@ -470,16 +471,31 @@ function loseHandling() {
     }
   }
   if (!availableMoves) {
-    alert("lost");
+    if (currentScore > bestScore) {
+      bestScore = currentScore;
+      localStorage.setItem("bestScore", bestScore);
+    }
+    let loseAlert = document.createElement("h2");
+    document.querySelector("main").appendChild(loseAlert);
+    mainGameDiv.innerHTML = "";
+    mainGameDiv.append(loseAlert);
+    loseAlert.innerText = "LOST";
+
+    window.removeEventListener("keydown", null);
   }
 }
 
-// showMaxScore();
-/// Padaryti best score
+function getLocalBestScore() {
+  let localScore = localStorage.getItem("bestScore");
+  if (localScore.length > 0) {
+    bestScore = localScore;
+    document.querySelector("#bestScore h4").innerText = bestScore;
+  }
+}
 
-///1. Pralaimėjimo metu suskaičiuot score.
-///2. Placinti jį į local storage.
-///3. Kito žaidimo metu lyginti buvusį score su nauju.
+getLocalBestScore();
+
+/// Fix event listener while lost.
 
 //Išsaugoti esamą žaidimo būseną, vartotojui perkrovus puslapį, rodytų tapatį progresą.
 // Sukurti timerį kuris dinamiškai sektų laiką, kiek vartotojas praleido laiko prie žaimio išsaugotų ir sugryžus į žaidimą testų.
