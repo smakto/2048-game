@@ -1,7 +1,7 @@
 let mainGameDiv = document.getElementById("mainGameField");
 let tiles = document.querySelectorAll("div.tileClass");
 let bestScore;
-
+let gameStarted = false;
 /////////////// Game Create
 
 function createTiles(field) {
@@ -73,7 +73,7 @@ function generateNumbers() {
 
 /////////////// Create first numbers
 
-document.getElementById("NewGame").addEventListener("click", (event) => {
+function softResetGame() {
   for (let i = 0; i < 4; i++) {
     for (let j = 0; j < 4; j++) {
       theGrid[i][j] = null;
@@ -86,7 +86,12 @@ document.getElementById("NewGame").addEventListener("click", (event) => {
   generateNumbers();
   renderNumbers();
   colorTiles();
-});
+}
+
+document.getElementById("NewGame").addEventListener("click", softResetGame);
+document
+  .querySelector(".lostMsgContainer")
+  .addEventListener("click", softResetGame);
 
 window.addEventListener("load", (event) => {
   generateNumbers();
@@ -97,7 +102,7 @@ window.addEventListener("load", (event) => {
 
 /////////////// Movement
 
-window.addEventListener("keydown", (event) => {
+function handleKeydown(event) {
   switch (event.key) {
     case "ArrowUp":
       turnUp();
@@ -112,7 +117,9 @@ window.addEventListener("keydown", (event) => {
       turnRight();
       break;
   }
-});
+}
+
+window.addEventListener("keydown", handleKeydown);
 
 function turnLeft() {
   let newGrid = JSON.parse(JSON.stringify(theGrid));
@@ -475,13 +482,14 @@ function loseHandling() {
       bestScore = currentScore;
       localStorage.setItem("bestScore", bestScore);
     }
-    let loseAlert = document.createElement("h2");
-    document.querySelector("main").appendChild(loseAlert);
-    mainGameDiv.innerHTML = "";
-    mainGameDiv.append(loseAlert);
-    loseAlert.innerText = "LOST";
 
-    window.removeEventListener("keydown", null);
+    // setTimeout(() => {
+    //   let loseAlert = document.createElement("h2");
+    //   document.body.append(loseAlert);
+    //   loseAlert.innerText = "LOST";
+    // }, 500);
+    document.querySelector(".lostMsgContainer").style.display = "block";
+    window.removeEventListener("keydown", handleKeydown);
   }
 }
 
@@ -495,7 +503,30 @@ function getLocalBestScore() {
 
 getLocalBestScore();
 
-/// Fix event listener while lost.
+function timer() {
+  let seconds = 0;
+  let minutes = 0;
+
+  setInterval(() => {
+    let secondsToRender = seconds < 10 ? `0${seconds}` : `${seconds}`;
+    let minutesToRender = minutes < 10 ? `0${minutes}` : `${minutes}`;
+
+    seconds += 1;
+
+    if (seconds === 60) {
+      seconds = 0;
+      minutes += 1;
+    }
+
+    document.querySelector(
+      ".timer p"
+    ).innerText = `Time: ${minutesToRender}:${secondsToRender}`;
+  }, 1000);
+}
+
+timer();
+
+sessionStorage.setItem("currentGame", theGrid);
 
 //Išsaugoti esamą žaidimo būseną, vartotojui perkrovus puslapį, rodytų tapatį progresą.
 // Sukurti timerį kuris dinamiškai sektų laiką, kiek vartotojas praleido laiko prie žaimio išsaugotų ir sugryžus į žaidimą testų.
