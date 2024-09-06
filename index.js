@@ -1,7 +1,13 @@
 let mainGameDiv = document.getElementById("mainGameField");
 let tiles = document.querySelectorAll("div.tileClass");
-let bestScore;
+let bestScore = 0;
 let gameStarted = false;
+
+let seconds = 0;
+let minutes = 0;
+
+let savedGame = sessionStorage.getItem("currentGame");
+savedGame = JSON.parse(savedGame);
 /////////////// Game Create
 
 function createTiles(field) {
@@ -15,7 +21,7 @@ function createTiles(field) {
 /////////////// Generate values
 
 let theGrid = [];
-let currentScore = 0;
+let currentScore;
 
 function generateGrid(value) {
   for (let i = 0; i < 4; i++) {
@@ -93,13 +99,6 @@ document
   .querySelector(".lostMsgContainer")
   .addEventListener("click", softResetGame);
 
-window.addEventListener("load", (event) => {
-  generateNumbers();
-  generateNumbers();
-  renderNumbers();
-  colorTiles();
-});
-
 /////////////// Movement
 
 function handleKeydown(event) {
@@ -174,8 +173,9 @@ function turnLeft() {
   renderNumbers();
   colorTiles();
   showScore();
-  // showMaxScore();
   loseHandling();
+
+  captureGameState();
 }
 
 function turnRight() {
@@ -229,8 +229,9 @@ function turnRight() {
     renderNumbers();
     colorTiles();
     showScore();
-    // showMaxScore();
     loseHandling();
+
+    captureGameState();
   }
 }
 
@@ -287,8 +288,9 @@ function turnDown() {
     renderNumbers();
     colorTiles();
     showScore();
-    // showMaxScore();
     loseHandling();
+
+    captureGameState();
   }
 }
 
@@ -346,8 +348,9 @@ function turnUp() {
     renderNumbers();
     colorTiles();
     showScore();
-    // showMaxScore();
     loseHandling();
+
+    captureGameState();
   }
 }
 
@@ -424,7 +427,31 @@ function showScore() {
 
 createTiles(mainGameDiv);
 generateGrid(null);
-showScore();
+
+//////////////////////////
+//////////////////////////
+//////////////////////////
+//////////////////////////
+
+function timer() {
+  setInterval(() => {
+    let secondsToRender = seconds < 10 ? `0${seconds}` : `${seconds}`;
+    let minutesToRender = minutes < 10 ? `0${minutes}` : `${minutes}`;
+
+    seconds += 1;
+
+    if (seconds === 60) {
+      seconds = 0;
+      minutes += 1;
+    }
+
+    document.querySelector(
+      ".timer p"
+    ).innerText = `Time: ${minutesToRender}:${secondsToRender}`;
+  }, 1000);
+}
+
+timer();
 
 //////////////////////////
 //////////////////////////
@@ -483,11 +510,6 @@ function loseHandling() {
       localStorage.setItem("bestScore", bestScore);
     }
 
-    // setTimeout(() => {
-    //   let loseAlert = document.createElement("h2");
-    //   document.body.append(loseAlert);
-    //   loseAlert.innerText = "LOST";
-    // }, 500);
     document.querySelector(".lostMsgContainer").style.display = "block";
     window.removeEventListener("keydown", handleKeydown);
   }
@@ -495,7 +517,7 @@ function loseHandling() {
 
 function getLocalBestScore() {
   let localScore = localStorage.getItem("bestScore");
-  if (localScore.length > 0) {
+  if (localScore !== null) {
     bestScore = localScore;
     document.querySelector("#bestScore h4").innerText = bestScore;
   }
@@ -503,31 +525,35 @@ function getLocalBestScore() {
 
 getLocalBestScore();
 
-function timer() {
-  let seconds = 0;
-  let minutes = 0;
+///////
+////////
+//////// Session storage
 
-  setInterval(() => {
-    let secondsToRender = seconds < 10 ? `0${seconds}` : `${seconds}`;
-    let minutesToRender = minutes < 10 ? `0${minutes}` : `${minutes}`;
-
-    seconds += 1;
-
-    if (seconds === 60) {
-      seconds = 0;
-      minutes += 1;
-    }
-
-    document.querySelector(
-      ".timer p"
-    ).innerText = `Time: ${minutesToRender}:${secondsToRender}`;
-  }, 1000);
+function captureGameState() {
+  let gameState = {
+    grid: theGrid,
+    minutes: minutes,
+    seconds: seconds,
+    score: currentScore,
+  };
+  sessionStorage.setItem("currentGame", JSON.stringify(gameState));
 }
 
-timer();
-
-sessionStorage.setItem("currentGame", theGrid);
-
-//Išsaugoti esamą žaidimo būseną, vartotojui perkrovus puslapį, rodytų tapatį progresą.
-// Sukurti timerį kuris dinamiškai sektų laiką, kiek vartotojas praleido laiko prie žaimio išsaugotų ir sugryžus į žaidimą testų.
-// Sujungti visus žaidimus kuriuos darėte į vieną - būtų pagrindinis puslapis kuris duotų vartotojui rinktis ką nori žaisti (Kitus žaidimus imti iš senų užduočių)
+window.addEventListener("load", (event) => {
+  if (savedGame === null) {
+    currentScore = 0;
+    generateNumbers();
+    generateNumbers();
+    renderNumbers();
+    colorTiles();
+    showScore();
+  } else {
+    theGrid = savedGame.grid;
+    seconds = savedGame.seconds;
+    minutes = savedGame.minutes;
+    currentScore = savedGame.score;
+    renderNumbers();
+    colorTiles();
+    showScore();
+  }
+});
