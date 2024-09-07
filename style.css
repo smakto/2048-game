@@ -1,3 +1,17 @@
+@keyframes newTilePop {
+  0% {
+    width: 90px;
+    height: 90px;
+  }
+  50% {
+    width: 100px;
+    height: 100px;
+  }
+  100% {
+    width: 90px;
+    height: 90px;
+  }
+}
 body {
   background-color: #eadfb4;
   width: 35%;
@@ -91,6 +105,11 @@ div.lostMsgContainer {
 }
 div.lostMsgContainer button {
   width: 50%;
+}
+
+.popClass {
+  animation-name: newTilePop;
+  animation-duration: 0.2s;
 }
 
 button {

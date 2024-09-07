@@ -1,14 +1,21 @@
+/// Global variables
+
 let mainGameDiv = document.getElementById("mainGameField");
 let tiles = document.querySelectorAll("div.tileClass");
 let bestScore = 0;
-let gameStarted = false;
 
 let seconds = 0;
 let minutes = 0;
 
+let theGrid = [];
+let currentScore;
+
 let savedGame = sessionStorage.getItem("currentGame");
 savedGame = JSON.parse(savedGame);
-/////////////// Game Create
+
+let intervalFunction;
+
+/// Game creation
 
 function createTiles(field) {
   for (let i = 0; i < 16; i++) {
@@ -17,11 +24,6 @@ function createTiles(field) {
     field.appendChild(oneTile);
   }
 }
-
-/////////////// Generate values
-
-let theGrid = [];
-let currentScore;
 
 function generateGrid(value) {
   for (let i = 0; i < 4; i++) {
@@ -52,17 +54,12 @@ function generateNumbers() {
   function insertNumber(i1, i2) {
     theGrid[i1][i2] = numbers[numPick];
   }
-  /// Insertina numerius, į nurodytus indexus +++
 
   if (!theGrid[r1][r2]) {
     insertNumber(r1, r2);
-  }
-  /// Jeigu nurodytam indexe "null" insertina 2 / 4.
-  else if (theGrid[r1][r2] && nullGrid[r1][0] !== -1) {
+  } else if (theGrid[r1][r2] && nullGrid[r1][0] !== -1) {
     insertNumber(r1, nullGrid[r1][0]);
-  }
-  /// Jeigu skaičius random indeksuose jau yra, bet toje pačioje eilutėje yra null - sugeneruoja skaičių toje eilutėje.
-  else if (theGrid[r1][r2] && nullGrid[r1][0] === -1) {
+  } else if (theGrid[r1][r2] && nullGrid[r1][0] === -1) {
     let nullRowIndex = [];
     nullGrid.forEach((item) => {
       if (item[0] !== -1) {
@@ -73,11 +70,9 @@ function generateNumbers() {
     let randomRow = nullRowIndex[randomRowIndex];
     insertNumber(randomRow, nullGrid[randomRow][0]);
   }
-  /// Jeigu eilutėj nebėra null, atrenka visas eilutes, kur null dar yra (index != -1).
-  /// Po to random parenka į kurią eilutę bus pridėtas skaičius.
 }
 
-/////////////// Create first numbers
+/// Reset
 
 function softResetGame() {
   for (let i = 0; i < 4; i++) {
@@ -85,21 +80,18 @@ function softResetGame() {
       theGrid[i][j] = null;
     }
   }
-
+  minutes = 0;
+  seconds = 0;
   currentScore = 0;
   showScore();
   generateNumbers();
   generateNumbers();
   renderNumbers();
   colorTiles();
+  captureGameState();
 }
 
-document.getElementById("NewGame").addEventListener("click", softResetGame);
-document
-  .querySelector(".lostMsgContainer")
-  .addEventListener("click", softResetGame);
-
-/////////////// Movement
+/// Handling tile movement
 
 function handleKeydown(event) {
   switch (event.key) {
@@ -117,8 +109,6 @@ function handleKeydown(event) {
       break;
   }
 }
-
-window.addEventListener("keydown", handleKeydown);
 
 function turnLeft() {
   let newGrid = JSON.parse(JSON.stringify(theGrid));
@@ -365,13 +355,15 @@ function changeGrid() {
   theGrid = oppositeGrid;
 }
 
-/////////////// Rendering
+/// Rendering game
 
 function renderNumbers() {
   let tiles = document.querySelectorAll("div.tileClass");
   let combinedGrid = theGrid[0].concat(theGrid[1], theGrid[2], theGrid[3]);
   for (let k = 0; k < tiles.length; k++) {
     tiles[k].innerText = combinedGrid[k];
+    if (combinedGrid[k] !== null) {
+    }
   }
 }
 
@@ -425,16 +417,10 @@ function showScore() {
   document.querySelector("#currentScore h4").innerText = currentScore;
 }
 
-createTiles(mainGameDiv);
-generateGrid(null);
-
-//////////////////////////
-//////////////////////////
-//////////////////////////
-//////////////////////////
+/// Timer
 
 function timer() {
-  setInterval(() => {
+  intervalFunction = setInterval(() => {
     let secondsToRender = seconds < 10 ? `0${seconds}` : `${seconds}`;
     let minutesToRender = minutes < 10 ? `0${minutes}` : `${minutes}`;
 
@@ -448,15 +434,11 @@ function timer() {
     document.querySelector(
       ".timer p"
     ).innerText = `Time: ${minutesToRender}:${secondsToRender}`;
+    captureGameState();
   }, 1000);
 }
 
-timer();
-
-//////////////////////////
-//////////////////////////
-//////////////////////////
-//////////////////////////
+/// Handling lose message
 
 function loseHandling() {
   let fullRows = 0;
@@ -512,8 +494,11 @@ function loseHandling() {
 
     document.querySelector(".lostMsgContainer").style.display = "block";
     window.removeEventListener("keydown", handleKeydown);
+    clearInterval(intervalFunction);
   }
 }
+
+/// Best score
 
 function getLocalBestScore() {
   let localScore = localStorage.getItem("bestScore");
@@ -523,11 +508,7 @@ function getLocalBestScore() {
   }
 }
 
-getLocalBestScore();
-
-///////
-////////
-//////// Session storage
+/// Session storage
 
 function captureGameState() {
   let gameState = {
@@ -538,6 +519,8 @@ function captureGameState() {
   };
   sessionStorage.setItem("currentGame", JSON.stringify(gameState));
 }
+
+/// Event listeners
 
 window.addEventListener("load", (event) => {
   if (savedGame === null) {
@@ -557,3 +540,18 @@ window.addEventListener("load", (event) => {
     showScore();
   }
 });
+
+window.addEventListener("keydown", handleKeydown);
+
+document.getElementById("newGame").addEventListener("click", softResetGame);
+document.querySelector(".lostMsgContainer").addEventListener("click", () => {
+  sessionStorage.clear();
+  location.reload();
+});
+
+/// Function calls
+
+createTiles(mainGameDiv);
+generateGrid(null);
+getLocalBestScore();
+timer();
